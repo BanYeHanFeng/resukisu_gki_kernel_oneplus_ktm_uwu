@@ -1,0 +1,8 @@
+#include <dt-bindings/interconnect/qcom,sun.h>
+#include "../sun-peach-cnss-v8.dts"
+
+&wlan_peach {
+	nvmem-cells = <0>;
+	nvmem-cell-names = "";
+	wcal-pbs-supply = <0>;
+};

@@ -1,0 +1,24 @@
+/* qcom battery gauge, svooc-80w, no-ufcs, pps-33w */
+#include "oplus-chg-erhai-common.dtsi"
+#include "oplus-chg-export.dtsi"
+#include "oplus-chg-qbg.dtsi"
+
+&oplus_cpa {
+	oplus,protocol_list = <CHG_PROTOCOL_VOOC 80
+				   CHG_PROTOCOL_PPS  33
+				   CHG_PROTOCOL_PD   18
+				   CHG_PROTOCOL_QC   18>;
+	oplus,default_protocol_list = <CHG_PROTOCOL_PD
+					   CHG_PROTOCOL_PPS
+					   CHG_PROTOCOL_VOOC>;
+	oplus,common_chg_pps {
+		oplus,region_id = /bits/ 8 <0xA7>;
+		oplus,protocol_list = <CHG_PROTOCOL_VOOC 80
+				   CHG_PROTOCOL_PPS  55
+				   CHG_PROTOCOL_PD   18
+				   CHG_PROTOCOL_QC   18>;
+		oplus,default_protocol_list = <CHG_PROTOCOL_PD
+					   CHG_PROTOCOL_PPS
+					   CHG_PROTOCOL_VOOC>;
+	};
+};

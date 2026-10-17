@@ -1,0 +1,12 @@
+/dts-v1/;
+/plugin/;
+#include <dt-bindings/oplus/hw-id.h>
+#include "../sun-audio-mtp-nfc.dts"
+#include "sun-audio-overlay-common.dtsi"
+#include "pagani-24821-audio-sun-overlay.dtsi"
+
+/ {
+    model = "Qualcomm Technologies, Inc. Sun MTP,pagani";
+
+    oplus,project-id = <24821 24875>;
+};
