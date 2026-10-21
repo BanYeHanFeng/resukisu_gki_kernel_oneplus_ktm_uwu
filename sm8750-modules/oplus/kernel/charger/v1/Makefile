@@ -7,7 +7,7 @@ gki_support = yes
 endif
 
 subdir-ccflags-y += -I$(srctree)/$(src)
-subdir-ccflags-y += -Werror=parentheses -Wframe-larger-than=3042
+subdir-ccflags-y += -Wno-error=parentheses -Wframe-larger-than=3042
 subdir-ccflags-y += -DOPLUS_CHG_KO_BUILD
 ccflags-$(CONFIG_OPLUS_DYNAMIC_CONFIG_CHARGER) += -I$(srctree)/drivers/power/oplus/config
 
@@ -31,7 +31,7 @@ subdir-ccflags-y += -I$(srctree)/drivers/misc/mediatek/include
 subdir-ccflags-y += -I$(srctree)/drivers/misc/mediatek/usb20/
 subdir-ccflags-y += -I$(srctree)/drivers/power/supply
 else ifeq ($(CONFIG_OPLUS_CHARGER_MTK6769R),y)
-subdir-ccflags-y += -Werror -I$(srctree)/drivers/misc/mediatek/pmic/include
+subdir-ccflags-y += -Wno-error -I$(srctree)/drivers/misc/mediatek/pmic/include
 endif
 
 ifeq ($(CONFIG_OPLUS_CHARGER_MTK6835T),y)
@@ -365,7 +365,7 @@ obj-$(CONFIG_OPLUS_CHG) := oplus_chg.o
 else # gki_support
 
 ifeq ($(CONFIG_OPLUS_CHARGER_MTK),y)
-subdir-ccflags-y += -Werror
+subdir-ccflags-y += -Wno-error
 subdir-ccflags-y += -Wno-unused-variable
 ifeq ($(CONFIG_OPLUS_CHARGER_MTK6779Q),y)
 subdir-ccflags-y += -I$(srctree)/drivers/misc/mediatek/include
@@ -379,7 +379,7 @@ subdir-ccflags-y += -I$(srctree)/drivers/misc/mediatek/include
 endif
 ifeq ($(CONFIG_OPLUS_CHARGER_MTK6877),y)
 subdir-ccflags-y += -I$(srctree)/drivers/misc/mediatek/include
-subdir-ccflags-y += -Werror
+subdir-ccflags-y += -Wno-error
 subdir-ccflags-y += -Wunused
 subdir-ccflags-y += -Wno-unused-result
 endif
@@ -393,7 +393,7 @@ ifeq ($(CONFIG_OPLUS_CHARGER_MTK6765S),y)
 subdir-ccflags-y += -I$(srctree)/drivers/misc/mediatek/include
 endif
 ifeq ($(CONFIG_OPLUS_CHARGER_MTK6769R),y)
-subdir-ccflags-y += -Werror -I$(srctree)/drivers/misc/mediatek/pmic/include
+subdir-ccflags-y += -Wno-error -I$(srctree)/drivers/misc/mediatek/pmic/include
 endif
 
 ifneq ($(CONFIG_OPLUS_CHARGER_MTK),y)

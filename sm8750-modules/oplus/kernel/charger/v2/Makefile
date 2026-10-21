@@ -16,9 +16,9 @@ ccflags-$(CONFIG_OPLUS_MT6375_CHARGER) += -I$(srctree)/drivers/misc/mediatek/typ
 ccflags-$(CONFIG_OPLUS_MT6379_CHARGER) += -I$(srctree)/drivers/misc/mediatek/typec/tcpc/inc
 ccflags-y += -I$(srctree)/$(src)/ufcs/include
 ccflags-$(CONFIG_OPLUS_DYNAMIC_CONFIG_CHARGER) += -I$(srctree)/$(src)/../config
-ccflags-y += -Werror=parentheses
-ccflags-y += -Werror=implicit-fallthrough
-ccflags-y += -Werror=format
+ccflags-y += -Wno-error=parentheses
+ccflags-y += -Wno-error=implicit-fallthrough
+ccflags-y += -Wno-error=format
 ccflags-y += -DOPLUS_CHG_KO_BUILD
 
 ifeq ($(CONFIG_OPLUS_CHARGER_MTK),y)

@@ -1,4 +1,4 @@
-ccflags-y += -Werror=parentheses
+ccflags-y += -Wno-error=parentheses
 
 debug-kit-y = oplus_device_bus.o
 

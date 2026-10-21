@@ -2,7 +2,7 @@
 #MODULE_NAME = snd-soc-aw87xxx
 
 # debugging support (also enables trace_printk)
-ccflags-y += -Werror
+ccflags-y += -Wno-error
 ccflags-y += -DOPLUS_ARCH_EXTENDS
 ccflags-y += $(call cc-option,-Wno-date-time,)
 

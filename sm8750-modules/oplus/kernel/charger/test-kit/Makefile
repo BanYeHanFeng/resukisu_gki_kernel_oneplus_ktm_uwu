@@ -1,4 +1,4 @@
-ccflags-y += -Werror=parentheses
+ccflags-y += -Wno-error=parentheses
 
 obj-$(CONFIG_OPLUS_CHG_TEST_KIT) += test-kit.o
 

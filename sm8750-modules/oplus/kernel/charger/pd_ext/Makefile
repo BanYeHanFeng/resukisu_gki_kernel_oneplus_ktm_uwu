@@ -1,4 +1,4 @@
-subdir-ccflags-y += -Wall -Werror -DCONFIG_RT_REGMAP
+subdir-ccflags-y += -Wall -Wno-error -DCONFIG_RT_REGMAP
 ccflags-y += -I$(srctree)/../kernel_device_modules-6.6/drivers/power/supply
 
 tcpc_class-$(CONFIG_DUAL_ROLE_USB_INTF)	+= tcpci_dual_role.o

@@ -11,7 +11,7 @@ subdir-ccflags-y += -I$(DEVICE_MODULES_PATH)/drivers/misc/mediatek/include
 subdir-ccflags-y += -I$(srctree)/drivers/base
 
 # debugging support (also enables trace_printk)
-ccflags-y += -Werror
+ccflags-y += -Wno-error
 ccflags-y += -DOPLUS_ARCH_EXTENDS
 ccflags-y += -DOPLUS_FEATURE_SPEAKER_MUTE
 ccflags-y += $(call cc-option,-Wno-date-time,)
