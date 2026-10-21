@@ -244,5 +244,3 @@ source "drivers/hte/Kconfig"
 source "drivers/cdx/Kconfig"
 
 endmenu
-
-source "drivers/kernelsu/Kconfig"
