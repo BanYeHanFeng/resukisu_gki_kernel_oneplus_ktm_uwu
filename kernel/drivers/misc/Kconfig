@@ -525,6 +525,21 @@ config NTSYNC
 
 	  If unsure, say N.
 
+config NTSYNC_ANDROID_DEV_PERMS
+	bool "Force 0666 permissions and a usable SELinux label on /dev/ntsync"
+	depends on NTSYNC=y
+	default n
+	help
+	  Android 的 ueventd 与 SELinux 策略默认不允许普通 app 域打开
+	  /dev/ntsync，没有 root 或无法修改 vendor sepolicy 时 Wine/Proton
+	  用不了 ntsync。
+
+	  打开后驱动会在注册设备 2 秒后把 /dev/ntsync 的权限改成 0666，
+	  并把 SELinux 标签设置为 gpu_device（app 域对该标签有读写权限）。
+
+	  这是兜底 hack：能改 sepolicy / ueventd.rc 的环境请不要打开，
+	  而是在策略里为 ntsync 设备单独放行。默认关闭。
+
 config VCPU_STALL_DETECTOR
 	tristate "Guest vCPU stall detector"
 	depends on OF && HAS_IOMEM
