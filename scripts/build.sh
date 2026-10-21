@@ -94,6 +94,37 @@ configure() {
 	return 0
 }
 
+DS_REQUIRED=(
+	CONFIG_SYSVIPC CONFIG_POSIX_MQUEUE CONFIG_IPC_NS CONFIG_PID_NS
+	CONFIG_DEVTMPFS CONFIG_NETFILTER_XT_MATCH_ADDRTYPE
+)
+DS_RECOMMENDED=(
+	CONFIG_USER_NS CONFIG_MACVLAN CONFIG_IP6_NF_NAT CONFIG_IP6_NF_TARGET_MASQUERADE
+	CONFIG_NETFILTER_XT_TARGET_LOG CONFIG_NETFILTER_XT_MATCH_RECENT
+	CONFIG_IP_SET CONFIG_IP_SET_HASH_IP CONFIG_IP_SET_HASH_NET CONFIG_NETFILTER_XT_SET
+	CONFIG_TMPFS_POSIX_ACL CONFIG_TMPFS_XATTR
+)
+
+check_droidspaces() {
+	local opt missing=() absent=()
+	for opt in "${DS_REQUIRED[@]}"; do
+		grep -qx "$opt=y" "$OUT_DIR/.config" || missing+=("$opt")
+	done
+	for opt in "${DS_RECOMMENDED[@]}"; do
+		grep -qx "$opt=y" "$OUT_DIR/.config" || absent+=("$opt")
+	done
+
+	log "Droidspaces：必需项 ${#DS_REQUIRED[@]} 项全部生效，推荐项生效 $(( ${#DS_RECOMMENDED[@]} - ${#absent[@]} ))/${#DS_RECOMMENDED[@]}"
+	[[ ${#absent[@]} -eq 0 ]] || warn "Droidspaces 推荐选项未生效：${absent[*]}"
+	[[ ${#missing[@]} -eq 0 ]] || die "Droidspaces 必需选项未生效：${missing[*]}（检查 $OUT_DIR/.config，本地复用了旧配置时用 RECONFIG=1 重新生成）"
+	if grep -qx 'CONFIG_CFS_BANDWIDTH=y' "$OUT_DIR/.config"; then
+		warn "CONFIG_CFS_BANDWIDTH=y：会破坏 kABI，原厂 vendor 模块可能加载失败"
+	fi
+	if grep -qx 'CONFIG_CGROUP_PIDS=y' "$OUT_DIR/.config"; then
+		warn "CONFIG_CGROUP_PIDS=y：会破坏 kABI，原厂 vendor 模块可能加载失败"
+	fi
+}
+
 build_kernel() {
 	log "编译 Image 与设备树（-j$JOBS）"
 	make "${make_args[@]}" Image dtbs
@@ -143,6 +174,7 @@ main() {
 	check_env
 	prepare_tree
 	configure
+	check_droidspaces
 	build_kernel
 	collect_dist
 	make_dtbo_img
