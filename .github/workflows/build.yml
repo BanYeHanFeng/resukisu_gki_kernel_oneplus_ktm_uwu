@@ -1,0 +1,128 @@
+name: Build Kernel
+
+on:
+  workflow_dispatch:
+    inputs:
+      flash_dtbo:
+        description: "刷机包内带上 dtbo.img（安装时会刷写 dtbo 分区）"
+        type: boolean
+        default: false
+      localversion:
+        description: "可选：覆盖内核 localversion，用于对齐设备上 uname -r（例如 -4k-g1a2b3c4）"
+        type: string
+        default: ""
+
+permissions:
+  contents: read
+
+env:
+  LLVM_VERSION: "23.1.4"
+  CCACHE_DIR: ${{ github.workspace }}/.ccache
+
+jobs:
+  build:
+    name: 构建内核与卡刷包
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - name: 检出仓库
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 1
+
+      - name: 安装构建依赖
+        run: |
+          df -h /
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            bc bison flex libssl-dev libelf-dev cpio rsync lz4 zstd \
+            python3 zip unzip ccache dwarves git curl
+
+      - name: 配置 zram swap（内存两倍）
+        run: |
+          set -euo pipefail
+          mem_mb=$(awk '/MemTotal/{print int($2/1024)}' /proc/meminfo)
+          target_mb=$((mem_mb * 2))
+          echo "内存 ${mem_mb}M，zram 目标 ${target_mb}M"
+          if sudo modprobe zram 2>/dev/null \
+            || sudo apt-get install -y --no-install-recommends "linux-modules-extra-$(uname -r)"; then
+            sudo modprobe zram
+            sudo zramctl -f -s "${target_mb}M" -a lz4
+            sudo mkswap -q /dev/zram0 >/dev/null
+            sudo swapon -p 100 /dev/zram0
+          else
+            echo "::warning::zram 模块拉不到，退回磁盘 swapfile（会明显拖慢链接）"
+            sudo fallocate -l "${target_mb}M" /swapfile-lto
+            sudo chmod 600 /swapfile-lto
+            sudo mkswap -q /swapfile-lto >/dev/null
+            sudo swapon -p 100 /swapfile-lto
+          fi
+          free -h
+          swapon --show
+
+      - name: 缓存 LLVM 工具链
+        id: llvm-cache
+        uses: actions/cache@v6
+        with:
+          path: ~/toolchains/llvm-${{ env.LLVM_VERSION }}-x86_64
+          key: llvm-${{ env.LLVM_VERSION }}-x86_64
+
+      - name: 准备 LLVM 工具链
+        run: |
+          scripts/fetch-toolchain.sh ~/toolchains
+          echo "CLANG_BIN_DIR=$HOME/toolchains/llvm-${LLVM_VERSION}-x86_64/bin" >> "$GITHUB_ENV"
+
+      - name: 恢复 ccache
+        uses: actions/cache@v6
+        with:
+          path: ${{ env.CCACHE_DIR }}
+          key: ccache-${{ runner.os }}-llvm${{ env.LLVM_VERSION }}-${{ github.run_id }}
+          restore-keys: |
+            ccache-${{ runner.os }}-llvm${{ env.LLVM_VERSION }}-
+
+      - name: 构建内核
+        env:
+          USE_CCACHE: 1
+          KERNEL_LOCALVERSION: ${{ inputs.localversion }}
+        run: |
+          chmod +x scripts/*.sh
+          ccache --max-size=6G
+          ccache --zero-stats
+          scripts/build.sh
+
+      - name: 显示 ccache 统计
+        if: always()
+        run: ccache --show-stats || true
+
+      - name: 组装 AnyKernel3 卡刷包
+        run: |
+          args=()
+          if [ "${{ inputs.flash_dtbo }}" = "true" ]; then args+=(--with-dtbo); fi
+          scripts/pack_ak3.sh "${args[@]}"
+
+      - name: 列出产物
+        run: |
+          ls -lh dist/
+          echo "内核版本：$(grep kernel_release dist/kernel-info.txt)"
+          echo "提交：$(grep source_commit dist/kernel-info.txt)"
+
+      - name: 上传构建产物
+        uses: actions/upload-artifact@v7
+        with:
+          name: uwuAOSP-KTM-${{ github.run_number }}
+          path: dist/*.zip
+          if-no-files-found: error
+          compression-level: 0
+
+      - name: 写入构建摘要
+        if: always()
+        run: |
+          {
+            echo "## uwuAOSP Kernel · OnePlus Ace6 (KTM)"
+            echo
+            echo "- 提交：\`${GITHUB_SHA:0:12}\`"
+            echo "- 触发人：@${{ github.actor }}"
+            echo "- 只换内核：包里不带 .ko，安装时只刷 boot（可选 dtbo）"
+            [ -f dist/kernel-info.txt ] && sed 's/^/- /' dist/kernel-info.txt
+            [ -f dist/*.zip ] && ls -lh dist/*.zip | sed 's/^/- /'
+          } >> "$GITHUB_STEP_SUMMARY"
