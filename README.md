@@ -15,3 +15,6 @@
 
 **Droidspaces**
 - 支持 PID namespace，IPC namespace
+
+**lz4**
+- 内核 lz4 更新到 1.11.1
