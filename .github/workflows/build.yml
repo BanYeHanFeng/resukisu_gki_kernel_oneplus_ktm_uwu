@@ -22,7 +22,7 @@ env:
 jobs:
   build:
     name: 构建内核与卡刷包
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-arm
     timeout-minutes: 360
     steps:
       - name: 检出仓库
@@ -64,21 +64,21 @@ jobs:
         id: llvm-cache
         uses: actions/cache@v6
         with:
-          path: ~/toolchains/llvm-${{ env.LLVM_VERSION }}-x86_64
-          key: llvm-${{ env.LLVM_VERSION }}-x86_64
+          path: ~/toolchains/llvm-${{ env.LLVM_VERSION }}-aarch64
+          key: llvm-${{ env.LLVM_VERSION }}-aarch64
 
       - name: 准备 LLVM 工具链
         run: |
-          scripts/fetch-toolchain.sh ~/toolchains
-          echo "CLANG_BIN_DIR=$HOME/toolchains/llvm-${LLVM_VERSION}-x86_64/bin" >> "$GITHUB_ENV"
+          bin_dir=$(scripts/fetch-toolchain.sh ~/toolchains | tail -1)
+          echo "CLANG_BIN_DIR=$bin_dir" >> "$GITHUB_ENV"
 
       - name: 恢复 ccache
         uses: actions/cache@v6
         with:
           path: ${{ env.CCACHE_DIR }}
-          key: ccache-${{ runner.os }}-llvm${{ env.LLVM_VERSION }}-${{ github.run_id }}
+          key: ccache-${{ runner.os }}-${{ runner.arch }}-llvm${{ env.LLVM_VERSION }}-${{ github.run_id }}
           restore-keys: |
-            ccache-${{ runner.os }}-llvm${{ env.LLVM_VERSION }}-
+            ccache-${{ runner.os }}-${{ runner.arch }}-llvm${{ env.LLVM_VERSION }}-
 
       - name: 构建内核
         env:
