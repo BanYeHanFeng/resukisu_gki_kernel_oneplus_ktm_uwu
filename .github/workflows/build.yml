@@ -38,25 +38,23 @@ jobs:
             bc bison flex libssl-dev libelf-dev cpio rsync lz4 zstd \
             python3 zip unzip ccache dwarves git curl
 
-      - name: 配置 zram swap（内存两倍）
+      - name: 配置 zram swap
         run: |
           set -euo pipefail
           mem_mb=$(awk '/MemTotal/{print int($2/1024)}' /proc/meminfo)
           target_mb=$((mem_mb * 2))
           echo "内存 ${mem_mb}M，zram 目标 ${target_mb}M"
-          if sudo modprobe zram 2>/dev/null \
-            || sudo apt-get install -y --no-install-recommends "linux-modules-extra-$(uname -r)"; then
-            sudo modprobe zram
-            sudo zramctl -f -s "${target_mb}M" -a lz4
-            sudo mkswap -q /dev/zram0 >/dev/null
-            sudo swapon -p 100 /dev/zram0
-          else
-            echo "::warning::zram 模块拉不到，退回磁盘 swapfile（会明显拖慢链接）"
-            sudo fallocate -l "${target_mb}M" /swapfile-lto
-            sudo chmod 600 /swapfile-lto
-            sudo mkswap -q /swapfile-lto >/dev/null
-            sudo swapon -p 100 /swapfile-lto
+
+          if ! sudo modprobe zram 2>/dev/null; then
+            echo "::warning::zram 模块未就绪，补装 linux-modules-extra-$(uname -r)"
+            sudo apt-get install -y --no-install-recommends "linux-modules-extra-$(uname -r)"
+            sudo modprobe zram \
+              || { echo "::error::zram 模块不可用，构建必须依赖 zram swap"; exit 1; }
           fi
+
+          sudo zramctl -f -s "${target_mb}M" -a lz4
+          sudo mkswap -q /dev/zram0 >/dev/null
+          sudo swapon -p 100 /dev/zram0
           free -h
           swapon --show
 
