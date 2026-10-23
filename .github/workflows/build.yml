@@ -37,6 +37,10 @@ jobs:
           sudo apt-get install -y --no-install-recommends \
             bc bison flex libssl-dev libelf-dev cpio rsync lz4 zstd \
             python3 zip unzip ccache dwarves git curl
+          if ! sudo modprobe zram 2>/dev/null; then
+            echo "runner 内核未自带 zram 模块，补装 linux-modules-extra-$(uname -r)"
+            sudo apt-get install -y --no-install-recommends "linux-modules-extra-$(uname -r)" || true
+          fi
 
       - name: 配置 zram swap
         run: |
@@ -45,11 +49,9 @@ jobs:
           target_mb=$((mem_mb * 2))
           echo "内存 ${mem_mb}M，zram 目标 ${target_mb}M"
 
-          if ! sudo modprobe zram 2>/dev/null; then
-            echo "::warning::zram 模块未就绪，补装 linux-modules-extra-$(uname -r)"
-            sudo apt-get install -y --no-install-recommends "linux-modules-extra-$(uname -r)"
-            sudo modprobe zram \
-              || { echo "::error::zram 模块不可用，构建必须依赖 zram swap"; exit 1; }
+          if ! sudo modprobe zram; then
+            echo "::error::zram 模块不可用（linux-modules-extra 未装上），构建必须依赖 zram swap"
+            exit 1
           fi
 
           sudo zramctl -f -s "${target_mb}M" -a lz4
