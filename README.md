@@ -8,7 +8,7 @@
 - 删除内置 ReSukiSU
 
 **Actions**
-- ci 构建
+- arm64 环境构建
 
 **ntsync**
 - 加速 wine/proton
