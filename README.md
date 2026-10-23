@@ -15,3 +15,6 @@
 
 **Droidspaces**
 - 支持 PID namespace，IPC namespace
+
+**lz4**
+- 内核 lz4 解压路径更新到 1.10.0，接入一加 armv8 汇编加速
