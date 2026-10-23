@@ -30,17 +30,36 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: 安装构建依赖
+      - name: 安装构建依赖与 zram 模块
         run: |
+          set -euo pipefail
           df -h /
           sudo apt-get update
-          sudo apt-get install -y --no-install-recommends \
-            bc bison flex libssl-dev libelf-dev cpio rsync lz4 zstd \
+
+          pkgs=(
+            bc bison flex libssl-dev libelf-dev cpio rsync lz4 zstd
             python3 zip unzip ccache dwarves git curl
-          if ! sudo modprobe zram 2>/dev/null; then
-            echo "runner 内核未自带 zram 模块，补装 linux-modules-extra-$(uname -r)"
-            sudo apt-get install -y --no-install-recommends "linux-modules-extra-$(uname -r)" || true
+          )
+
+          kver=$(uname -r)
+          zram_pkg=
+          for cand in "linux-modules-extra-$kver" linux-modules-extra-azure; do
+            if apt-cache show "$cand" >/dev/null 2>&1; then
+              zram_pkg=$cand
+              break
+            fi
+          done
+          if [[ -n "$zram_pkg" ]]; then
+            echo "随依赖一起安装 $zram_pkg，给 $kver 提供 zram 模块"
+            pkgs+=("$zram_pkg")
+          else
+            echo "::warning::apt 源里没有 $kver 的 modules-extra，只能指望内核自带 zram"
           fi
+
+          sudo apt-get install -y --no-install-recommends "${pkgs[@]}"
+
+          sudo modprobe zram
+          echo "zram 模块就绪：$(modinfo -F filename zram)"
 
       - name: 配置 zram swap
         run: |
@@ -49,8 +68,8 @@ jobs:
           target_mb=$((mem_mb * 2))
           echo "内存 ${mem_mb}M，zram 目标 ${target_mb}M"
 
-          if ! sudo modprobe zram; then
-            echo "::error::zram 模块不可用（linux-modules-extra 未装上），构建必须依赖 zram swap"
+          if ! sudo modprobe zram || ! command -v zramctl >/dev/null; then
+            echo "::error::依赖步骤里的 linux-modules-extra 没把 zram 带起来，构建必须依赖 zram swap"
             exit 1
           fi
 
