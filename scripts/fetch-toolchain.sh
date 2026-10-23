@@ -5,13 +5,21 @@ set -euo pipefail
 
 LLVM_VERSION=${LLVM_VERSION:-23.1.4}
 DEST=${1:-$HOME/toolchains}
-URL="https://mirrors.edge.kernel.org/pub/tools/llvm/files/llvm-${LLVM_VERSION}-x86_64.tar.xz"
-TARBALL="$DEST/llvm-${LLVM_VERSION}-x86_64.tar.xz"
-SRC_DIR="$DEST/llvm-${LLVM_VERSION}-x86_64"
 
 log()  { printf '\033[32m[toolchain]\033[0m %s\n' "$*" >&2; }
 die()  { printf '\033[31m[error]\033[0m %s\n' "$*" >&2; exit 1; }
 
+case "${TOOLCHAIN_ARCH:-$(uname -m)}" in
+	aarch64|arm64) PKG_ARCH=aarch64 ;;
+	x86_64|amd64)  PKG_ARCH=x86_64 ;;
+	*) die "不支持的宿主架构：${TOOLCHAIN_ARCH:-$(uname -m)}" ;;
+esac
+
+URL="https://mirrors.edge.kernel.org/pub/tools/llvm/files/llvm-${LLVM_VERSION}-${PKG_ARCH}.tar.xz"
+TARBALL="$DEST/llvm-${LLVM_VERSION}-${PKG_ARCH}.tar.xz"
+SRC_DIR="$DEST/llvm-${LLVM_VERSION}-${PKG_ARCH}"
+
+log "宿主架构：$(uname -m)，工具链包：${PKG_ARCH}"
 mkdir -p "$DEST"
 
 if [ ! -x "$SRC_DIR/bin/clang" ]; then
