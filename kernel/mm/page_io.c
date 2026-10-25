@@ -431,7 +431,7 @@ static bool swap_sched_async_compress(struct folio *folio)
 		return false;
 
 	sis = page_swap_info(page);
-	if (data_race(sis->flags & SWP_SYNCHRONOUS_IO)) {
+	if (data_race(sis->flags & __SWP_WRITE_SYNCHRONOUS_IO)) {
 		if (kfifo_avail(&kc->kcompress_fifo) >= sizeof(page) &&
 		    kfifo_in(&kc->kcompress_fifo, &page, sizeof(page))) {
 			wake_up_interruptible(&kc->kcompressd_wait);
