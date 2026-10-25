@@ -18,8 +18,13 @@ static inline void swap_read_unplug(struct swap_iocb *plug)
 void swap_write_unplug(struct swap_iocb *sio);
 int swap_writepage(struct page *page, struct writeback_control *wbc);
 void __swap_writepage(struct page *page, struct writeback_control *wbc);
+#ifdef CONFIG_KCOMPRESSD
 void kcompressd_run(struct pglist_data *pgdat);
 void kcompressd_stop(struct pglist_data *pgdat);
+#else
+static inline void kcompressd_run(struct pglist_data *pgdat) { }
+static inline void kcompressd_stop(struct pglist_data *pgdat) { }
+#endif
 
 /* linux/mm/swap_state.c */
 /* One swap address space for each 64M swap space */

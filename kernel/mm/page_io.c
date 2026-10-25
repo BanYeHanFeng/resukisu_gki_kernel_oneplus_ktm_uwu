@@ -33,6 +33,7 @@
 #undef CREATE_TRACE_POINTS
 #include <trace/hooks/mm.h>
 
+#ifdef CONFIG_KCOMPRESSD
 #define KCOMPRESS_FIFO_SIZE 256
 
 struct kcompress_t {
@@ -42,6 +43,7 @@ struct kcompress_t {
 };
 
 static struct kcompress_t kcompress_data[MAX_NUMNODES];
+#endif
 
 static bool swap_sched_async_compress(struct folio *folio);
 
@@ -415,6 +417,7 @@ void __swap_writepage(struct page *page, struct writeback_control *wbc)
 		swap_writepage_start);
 }
 
+#ifdef CONFIG_KCOMPRESSD
 static bool swap_sched_async_compress(struct folio *folio)
 {
 	struct page *page = &folio->page;
@@ -515,6 +518,12 @@ void kcompressd_stop(pg_data_t *pgdat)
 	kc->kcompressd = NULL;
 	kfifo_free(&kc->kcompress_fifo);
 }
+#else
+static bool swap_sched_async_compress(struct folio *folio)
+{
+	return false;
+}
+#endif
 
 void swap_write_unplug(struct swap_iocb *sio)
 {
