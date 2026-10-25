@@ -25,10 +25,25 @@
 #include <linux/sched/task.h>
 #include <linux/delayacct.h>
 #include <linux/zswap.h>
+#include <linux/kfifo.h>
+#include <linux/kthread.h>
+#include <linux/numa.h>
 #include "swap.h"
 
 #undef CREATE_TRACE_POINTS
 #include <trace/hooks/mm.h>
+
+#define KCOMPRESS_FIFO_SIZE 256
+
+struct kcompress_t {
+	wait_queue_head_t kcompressd_wait;
+	struct task_struct *kcompressd;
+	struct kfifo kcompress_fifo;
+};
+
+static struct kcompress_t kcompress_data[MAX_NUMNODES];
+
+static bool swap_sched_async_compress(struct folio *folio);
 
 static void __end_swap_bio_write(struct bio *bio)
 {
@@ -204,6 +219,8 @@ int swap_writepage(struct page *page, struct writeback_control *wbc)
 		folio_end_writeback(folio);
 		return 0;
 	}
+	if (swap_sched_async_compress(folio))
+		return 0;
 	__swap_writepage(&folio->page, wbc);
 	return 0;
 }
@@ -396,6 +413,107 @@ void __swap_writepage(struct page *page, struct writeback_control *wbc)
 
 	trace_android_vh_swap_writepage_end(page, wbc,
 		swap_writepage_start);
+}
+
+static bool swap_sched_async_compress(struct folio *folio)
+{
+	struct page *page = &folio->page;
+	struct kcompress_t *kc = &kcompress_data[folio_nid(folio)];
+	struct swap_info_struct *sis;
+
+	if (unlikely(!READ_ONCE(kc->kcompressd)))
+		return false;
+
+	if (!current_is_kswapd())
+		return false;
+
+	if (!folio_test_anon(folio))
+		return false;
+
+	sis = page_swap_info(page);
+	if (data_race(sis->flags & SWP_SYNCHRONOUS_IO)) {
+		if (kfifo_avail(&kc->kcompress_fifo) >= sizeof(page) &&
+		    kfifo_in(&kc->kcompress_fifo, &page, sizeof(page))) {
+			wake_up_interruptible(&kc->kcompressd_wait);
+			return true;
+		}
+	}
+
+	return false;
+}
+
+static int kcompressd(void *p)
+{
+	pg_data_t *pgdat = p;
+	struct kcompress_t *kc = &kcompress_data[pgdat->node_id];
+	struct writeback_control wbc = {
+		.sync_mode = WB_SYNC_NONE,
+		.nr_to_write = SWAP_CLUSTER_MAX,
+		.range_start = 0,
+		.range_end = LLONG_MAX,
+		.for_reclaim = 1,
+	};
+	struct page *page;
+
+	current->flags |= PF_MEMALLOC | PF_KSWAPD;
+
+	while (!kthread_should_stop()) {
+		wait_event(kc->kcompressd_wait,
+			   !kfifo_is_empty(&kc->kcompress_fifo));
+
+		while (!kfifo_is_empty(&kc->kcompress_fifo)) {
+			if (kfifo_out(&kc->kcompress_fifo, &page, sizeof(page)))
+				__swap_writepage(page, &wbc);
+		}
+	}
+
+	current->flags &= ~(PF_MEMALLOC | PF_KSWAPD);
+
+	return 0;
+}
+
+void kcompressd_run(pg_data_t *pgdat)
+{
+	struct kcompress_t *kc = &kcompress_data[pgdat->node_id];
+	int ret;
+
+	if (kc->kcompressd)
+		return;
+
+	init_waitqueue_head(&kc->kcompressd_wait);
+
+	ret = kfifo_alloc(&kc->kcompress_fifo,
+			  KCOMPRESS_FIFO_SIZE * sizeof(struct page *),
+			  GFP_KERNEL);
+	if (ret) {
+		pr_err("%s: fail to kfifo_alloc\n", __func__);
+		return;
+	}
+
+	kc->kcompressd = kthread_create_on_node(kcompressd, pgdat,
+						pgdat->node_id,
+						"kcompressd%d", pgdat->node_id);
+	if (IS_ERR(kc->kcompressd)) {
+		pr_err("Failed to start kcompressd on node %d, ret=%ld\n",
+		       pgdat->node_id, PTR_ERR(kc->kcompressd));
+		kc->kcompressd = NULL;
+		kfifo_free(&kc->kcompress_fifo);
+		return;
+	}
+
+	wake_up_process(kc->kcompressd);
+}
+
+void kcompressd_stop(pg_data_t *pgdat)
+{
+	struct kcompress_t *kc = &kcompress_data[pgdat->node_id];
+
+	if (!kc->kcompressd)
+		return;
+
+	kthread_stop(kc->kcompressd);
+	kc->kcompressd = NULL;
+	kfifo_free(&kc->kcompress_fifo);
 }
 
 void swap_write_unplug(struct swap_iocb *sio)
