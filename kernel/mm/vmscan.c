@@ -8270,6 +8270,8 @@ void __meminit kswapd_run(int nid)
 			pgdat->kswapd = NULL;
 		}
 	}
+	if (pgdat->kswapd)
+		kcompressd_run(pgdat);
 	pgdat_kswapd_unlock(pgdat);
 }
 
@@ -8287,6 +8289,7 @@ void __meminit kswapd_stop(int nid)
 	if (kswapd) {
 		kthread_stop(kswapd);
 		pgdat->kswapd = NULL;
+		kcompressd_stop(pgdat);
 	}
 	pgdat_kswapd_unlock(pgdat);
 }
