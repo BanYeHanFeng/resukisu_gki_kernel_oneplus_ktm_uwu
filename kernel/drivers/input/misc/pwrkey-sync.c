@@ -30,6 +30,7 @@ static void pwrkey_sync_work(struct work_struct *unused)
 	ksys_sync_helper();
 }
 
+#ifdef CONFIG_INPUT_PWRKEY_SYNC_PANIC
 static void pwrkey_sync_panic_work(struct work_struct *unused)
 {
 	pr_info("%s triggered\n", __func__);
@@ -45,8 +46,10 @@ static void pwrkey_sync_panic_work(struct work_struct *unused)
 	panic("Power key is held down for " __stringify(CONFIG_INPUT_PWRKEY_SYNC_PANIC_DELAY) "ms");
 }
 
-static DECLARE_DELAYED_WORK(pwrkey_sync_worker, pwrkey_sync_work);
 static DECLARE_DELAYED_WORK(pwrkey_sync_panic_worker, pwrkey_sync_panic_work);
+#endif
+
+static DECLARE_DELAYED_WORK(pwrkey_sync_worker, pwrkey_sync_work);
 
 static void pwrkey_sync_input_event(struct input_handle *handle,
 				    unsigned int type, unsigned int code, int value)
