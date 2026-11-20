@@ -703,10 +703,12 @@ config ARCH_STACKWALK
 
 config STACKDEPOT
 	bool
+	default y
 	select STACKTRACE
 
 config STACKDEPOT_ALWAYS_INIT
 	bool
+	default y
 	select STACKDEPOT
 
 config REF_TRACKER
