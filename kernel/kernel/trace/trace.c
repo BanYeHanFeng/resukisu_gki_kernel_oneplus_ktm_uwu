@@ -192,8 +192,8 @@ static void ftrace_trace_userstack(struct trace_array *tr,
 static char bootup_tracer_buf[MAX_TRACER_SIZE] __initdata;
 static char *default_bootup_tracer;
 
-static bool allocate_snapshot;
-static bool snapshot_at_boot;
+static bool allocate_snapshot __maybe_unused;
+static bool snapshot_at_boot __maybe_unused;
 
 static char boot_instance_info[COMMAND_LINE_SIZE] __initdata;
 static int boot_instance_index;
