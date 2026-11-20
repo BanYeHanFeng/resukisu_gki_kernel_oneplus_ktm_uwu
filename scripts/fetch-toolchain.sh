@@ -3,7 +3,7 @@
 
 set -euo pipefail
 
-LLVM_VERSION=${LLVM_VERSION:-23.1.4}
+LLVM_VERSION=${LLVM_VERSION:-23.1.6}
 DEST=${1:-$HOME/toolchains}
 
 log()  { printf '\033[32m[toolchain]\033[0m %s\n' "$*" >&2; }

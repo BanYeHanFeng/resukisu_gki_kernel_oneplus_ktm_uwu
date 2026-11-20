@@ -16,7 +16,7 @@ permissions:
   contents: read
 
 env:
-  LLVM_VERSION: "23.1.4"
+  LLVM_VERSION: "23.1.6"
   CCACHE_DIR: ${{ github.workspace }}/.ccache
 
 jobs:
