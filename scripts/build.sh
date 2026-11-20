@@ -13,6 +13,8 @@ DIST_DIR=${DIST_DIR:-$REPO_ROOT/dist}
 JOBS=${JOBS:-$(nproc)}
 BASE_CONFIG=${BASE_CONFIG:-$REPO_ROOT/configs/ktm-baseline.config}
 USE_CCACHE=${USE_CCACHE:-0}
+KCFLAGS=${KCFLAGS:--O3}
+EXTRA_WARN=${EXTRA_WARN:-1e}
 
 log()  { printf '\033[32m[build]\033[0m %s\n' "$*"; }
 warn() { printf '\033[33m[warn]\033[0m %s\n' "$*" >&2; }
@@ -35,6 +37,7 @@ check_env() {
 
 	log "clang: $(clang --version | head -1)"
 	log "pahole: $(pahole --version)"
+	log "KCFLAGS: $KCFLAGS，W=$EXTRA_WARN"
 }
 
 prepare_tree() {
@@ -64,6 +67,9 @@ make_args=(
 	LD=ld.lld
 	HOSTLD=ld.lld
 	PAHOLE=pahole
+	KCFLAGS="$KCFLAGS"
+	W="$EXTRA_WARN"
+	cmd_checkdoc=:
 	-j"$JOBS"
 	CONFIG_KTM_DTB=y
 )
