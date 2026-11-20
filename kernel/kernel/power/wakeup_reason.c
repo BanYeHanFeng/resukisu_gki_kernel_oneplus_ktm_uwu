@@ -213,8 +213,8 @@ void log_threaded_irq_wakeup_reason(int irq, int parent_irq)
 }
 EXPORT_SYMBOL_GPL(log_threaded_irq_wakeup_reason);
 
-static void __log_abort_or_abnormal_wake(bool abort, const char *fmt,
-					 va_list args)
+static void __printf(2, 0)
+__log_abort_or_abnormal_wake(bool abort, const char *fmt, va_list args)
 {
 	unsigned long flags;
 

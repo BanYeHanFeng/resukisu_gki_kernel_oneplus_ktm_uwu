@@ -23,8 +23,8 @@
 #ifdef CONFIG_SUSPEND
 void log_irq_wakeup_reason(int irq);
 void log_threaded_irq_wakeup_reason(int irq, int parent_irq);
-void log_suspend_abort_reason(const char *fmt, ...);
-void log_abnormal_wakeup_reason(const char *fmt, ...);
+void __printf(1, 2) log_suspend_abort_reason(const char *fmt, ...);
+void __printf(1, 2) log_abnormal_wakeup_reason(const char *fmt, ...);
 void clear_wakeup_reasons(void);
 #else
 static inline void log_irq_wakeup_reason(int irq) { }
