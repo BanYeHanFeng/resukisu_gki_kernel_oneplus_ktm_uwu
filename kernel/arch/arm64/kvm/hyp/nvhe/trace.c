@@ -139,7 +139,7 @@ spin:
 static struct hyp_buffer_page *
 rb_move_tail(struct hyp_rb_per_cpu *cpu_buffer)
 {
-	struct hyp_buffer_page *tail_page, *new_tail, *new_head;
+	struct hyp_buffer_page *tail_page, *new_tail;
 
 	tail_page = cpu_buffer->tail_page;
 	new_tail = rb_next_page(tail_page);
@@ -163,8 +163,6 @@ again:
 
 		/* The new head is in place, reset the update flag */
 		rb_set_flag(tail_page, 0);
-
-		new_head = rb_next_page(new_tail);
 	}
 
 	local_set(&new_tail->page->commit, 0);
@@ -179,7 +177,7 @@ again:
 	return new_tail;
 }
 
-unsigned long rb_event_size(unsigned long length)
+static unsigned long rb_event_size(unsigned long length)
 {
 	struct ring_buffer_event *event;
 

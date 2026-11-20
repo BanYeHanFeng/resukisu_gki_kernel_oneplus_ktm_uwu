@@ -180,7 +180,7 @@ static arm_lpae_iopte arm_lpae_install_table(arm_lpae_iopte *table,
 	return old;
 }
 
-int __arm_lpae_map(struct arm_lpae_io_pgtable *data, unsigned long iova,
+static int __arm_lpae_map(struct arm_lpae_io_pgtable *data, unsigned long iova,
 		   phys_addr_t paddr, size_t size, size_t pgcount,
 		   arm_lpae_iopte prot, int lvl, arm_lpae_iopte *ptep,
 		   gfp_t gfp, size_t *mapped)
@@ -299,7 +299,7 @@ static arm_lpae_iopte arm_lpae_prot_to_pte(struct arm_lpae_io_pgtable *data,
 	return pte;
 }
 
-int arm_lpae_map_pages(struct io_pgtable_ops *ops, unsigned long iova,
+static int arm_lpae_map_pages(struct io_pgtable_ops *ops, unsigned long iova,
 		       phys_addr_t paddr, size_t pgsize, size_t pgcount,
 		       int iommu_prot, gfp_t gfp, size_t *mapped)
 {
@@ -538,7 +538,7 @@ static size_t __arm_lpae_unmap(struct arm_lpae_io_pgtable *data,
 }
 
 
-size_t __arm_lpae_unmap_pages(struct io_pgtable_ops *ops, unsigned long iova,
+static size_t __arm_lpae_unmap_pages(struct io_pgtable_ops *ops, unsigned long iova,
 			      size_t pgsize, size_t pgcount,
 			      struct iommu_iotlb_gather *gather,
 			      struct io_pgtable_walker *walker)
@@ -560,7 +560,7 @@ size_t __arm_lpae_unmap_pages(struct io_pgtable_ops *ops, unsigned long iova,
 				data->start_level, ptep, walker);
 }
 
-phys_addr_t arm_lpae_iova_to_phys(struct io_pgtable_ops *ops,
+static phys_addr_t arm_lpae_iova_to_phys(struct io_pgtable_ops *ops,
 				  unsigned long iova)
 {
 	struct arm_lpae_io_pgtable *data = io_pgtable_ops_to_data(ops);
@@ -596,14 +596,14 @@ found_translation:
 	return iopte_to_paddr(pte, data) | iova;
 }
 
-size_t arm_lpae_unmap_pages(struct io_pgtable_ops *ops, unsigned long iova,
+static size_t arm_lpae_unmap_pages(struct io_pgtable_ops *ops, unsigned long iova,
 			    size_t pgsize, size_t pgcount,
 			    struct iommu_iotlb_gather *gather)
 {
 	return __arm_lpae_unmap_pages(ops, iova, pgsize, pgcount, gather, NULL);
 }
 
-size_t arm_lpae_unmap_pages_walk(struct io_pgtable_ops *ops, unsigned long iova,
+static size_t arm_lpae_unmap_pages_walk(struct io_pgtable_ops *ops, unsigned long iova,
 				 size_t pgsize, size_t pgcount,
 				 struct iommu_iotlb_gather *gather,
 				 struct io_pgtable_walker *walker)

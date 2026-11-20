@@ -3,6 +3,10 @@
 
 #define LZ4_FAST_MARGIN                (128)
 
+int lz4_decompress_asm_select(uint8_t **dst_ptr, uint8_t *dst_begin,
+			      uint8_t *dst_end, const uint8_t **src_ptr,
+			      const uint8_t *src_end, bool dip);
+
 #if defined(CONFIG_ARM64) && defined(CONFIG_KERNEL_MODE_NEON)
 #include <asm/neon.h>
 #include <asm/cputype.h>

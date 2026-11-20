@@ -129,7 +129,7 @@ void kvm_iommu_remove_driver(void)
 		iommu_driver->remove_driver();
 }
 
-pkvm_handle_t kvm_get_iommu_id(struct device *dev)
+static pkvm_handle_t kvm_get_iommu_id(struct device *dev)
 {
 	return iommu_driver->get_iommu_id(dev);
 }

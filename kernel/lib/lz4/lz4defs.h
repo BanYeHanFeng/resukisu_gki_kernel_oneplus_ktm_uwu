@@ -45,6 +45,7 @@
 /*-************************************
  *	Basic Types
  **************************************/
+#include <linux/lz4.h>
 #include <linux/types.h>
 
 typedef	uint8_t BYTE;
@@ -243,5 +244,24 @@ typedef enum { endOnOutputSize = 0, endOnInputSize = 1 } endCondition_directive;
 typedef enum { decode_full_block = 0, partial_decode = 1 } earlyEnd_directive;
 
 #define LZ4_STATIC_ASSERT(c)	BUILD_BUG_ON(!(c))
+
+int LZ4_decompress_safe_withPrefix64k(const char *source, char *dest,
+				      int compressedSize, int maxOutputSize);
+int LZ4_decompress_fast_withPrefix64k(const char *source, char *dest,
+				      int originalSize);
+int LZ4_decompress_safe_forceExtDict(const char *source, char *dest,
+				     int compressedSize, int maxOutputSize,
+				     const void *dictStart, size_t dictSize);
+int LZ4_decompress_safe_partial_forceExtDict(const char *source, char *dest,
+					     int compressedSize, int targetOutputSize,
+					     int dstCapacity, const void *dictStart,
+					     size_t dictSize);
+LZ4_streamDecode_t *LZ4_createStreamDecode(void);
+int LZ4_freeStreamDecode(LZ4_streamDecode_t *LZ4_stream);
+int LZ4_decoderRingBufferSize(int maxBlockSize);
+int LZ4_decompress_safe_partial_usingDict(const char *source, char *dest,
+					  int compressedSize, int targetOutputSize,
+					  int dstCapacity, const char *dictStart,
+					  int dictSize);
 
 #endif

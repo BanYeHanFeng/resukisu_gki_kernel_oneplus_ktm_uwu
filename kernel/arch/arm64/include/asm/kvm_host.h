@@ -245,6 +245,8 @@ struct kvm_pinned_page
 	    __ppage && ({ __tmp = kvm_pinned_pages_iter_next(__ppage, start, end - 1); 1; });	\
 	    __ppage = __tmp)
 
+void kvm_pinned_pages_insert(struct kvm_pinned_page *node,
+			     struct rb_root_cached *root);
 void kvm_pinned_pages_remove(struct kvm_pinned_page *ppage,
 			     struct rb_root_cached *root);
 

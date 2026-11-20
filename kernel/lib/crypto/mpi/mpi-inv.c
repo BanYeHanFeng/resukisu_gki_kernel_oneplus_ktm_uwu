@@ -31,7 +31,6 @@ int mpi_invm(MPI x, MPI a, MPI n)
 	 * with further enhancement
 	 */
 	MPI u, v, u1, u2 = NULL, u3, v1, v2 = NULL, v3, t1, t2 = NULL, t3;
-	unsigned int k;
 	int sign;
 	int odd;
 
@@ -43,7 +42,7 @@ int mpi_invm(MPI x, MPI a, MPI n)
 	u = mpi_copy(a);
 	v = mpi_copy(n);
 
-	for (k = 0; !mpi_test_bit(u, 0) && !mpi_test_bit(v, 0); k++) {
+	for (; !mpi_test_bit(u, 0) && !mpi_test_bit(v, 0);) {
 		mpi_rshift(u, u, 1);
 		mpi_rshift(v, v, 1);
 	}

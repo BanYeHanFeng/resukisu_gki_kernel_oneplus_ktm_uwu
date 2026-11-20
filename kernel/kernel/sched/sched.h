@@ -1633,6 +1633,15 @@ extern struct rq *__migrate_task(struct rq *rq, struct rq_flags *rf,
 
 extern struct balance_callback balance_push_callback;
 
+#ifdef CONFIG_SMP
+void __balance_callbacks(struct rq *rq);
+void set_next_entity(struct cfs_rq *cfs_rq, struct sched_entity *se);
+#endif
+
+int ___update_load_sum(u64 now, struct sched_avg *sa, unsigned long load,
+		       unsigned long runnable, int running);
+void ___update_load_avg(struct sched_avg *sa, unsigned long load);
+
 /*
  * Lockdep annotation that avoids accidental unlocks; it's like a
  * sticky/continuous lockdep_assert_held().

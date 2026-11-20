@@ -2016,7 +2016,7 @@ static int pagemap_release(struct inode *inode, struct file *file)
 	return 0;
 }
 
-loff_t __pagemap_lseek(struct file *file, loff_t offset, int orig)
+static loff_t __pagemap_lseek(struct file *file, loff_t offset, int orig)
 {
 	unsigned long nr_subpages = __PAGE_SIZE / PAGE_SIZE;
 	loff_t ret;

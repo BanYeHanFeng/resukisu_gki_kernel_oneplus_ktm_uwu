@@ -17,6 +17,18 @@
 #include <linux/tracepoint-defs.h>
 
 struct folio_batch;
+struct oom_control;
+struct scan_control;
+
+void dump_tasks(struct oom_control *oc);
+
+bool isolate_folio(struct lruvec *lruvec, struct folio *folio,
+		   struct scan_control *sc);
+unsigned long shrink_inactive_list(unsigned long nr_to_scan,
+				   struct lruvec *lruvec,
+				   struct scan_control *sc, enum lru_list lru);
+unsigned long shrink_slab(gfp_t gfp_mask, int nid,
+			  struct mem_cgroup *memcg, int priority);
 
 /*
  * The set of flags that only affect watermark checking and reclaim
@@ -719,6 +731,8 @@ extern void prep_compound_page(struct page *page, unsigned int order);
 
 extern void post_alloc_hook(struct page *page, unsigned int order,
 					gfp_t gfp_flags);
+void prep_new_page(struct page *page, unsigned int order, gfp_t gfp_flags,
+		   unsigned int alloc_flags);
 extern int user_min_free_kbytes;
 
 void free_unref_page(struct page *page, unsigned int order);

@@ -12,6 +12,10 @@
 #include <linux/userfaultfd_k.h>
 #include <linux/android_vendor.h>
 
+struct vm_fault;
+
+vm_fault_t shmem_fault(struct vm_fault *vmf);
+
 /* inode in-kernel data */
 
 #ifdef CONFIG_TMPFS_QUOTA

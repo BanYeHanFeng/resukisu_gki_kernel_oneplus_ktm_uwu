@@ -13,6 +13,8 @@
 #include <nvhe/gfp.h>
 #include <nvhe/spinlock.h>
 
+void __pkvm_unmask_serror(void);
+
 /* Sentinel: distinct from NULL and any real pkvm_hyp_vcpu pointer. */
 #define PKVM_PVMFW_ENTERED ((struct pkvm_hyp_vcpu *)-1L)
 

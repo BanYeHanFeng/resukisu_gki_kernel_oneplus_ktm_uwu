@@ -275,8 +275,7 @@ static size_t host_stage2_get_pgd_size(void)
 
 static struct kvm_pgtable_snapshot *kvm_ptdump_get_host_snapshot(void *data)
 {
-	size_t mc_pages, pgd_pages;
-	mc_pages = (size_t)data;
+	size_t pgd_pages;
 	pgd_pages = host_stage2_get_pgd_size() >> PAGE_SHIFT;
 	return kvm_ptdump_get_snapshot(0, (size_t)data, pgd_pages);
 }
