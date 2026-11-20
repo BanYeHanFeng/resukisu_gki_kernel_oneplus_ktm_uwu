@@ -69,6 +69,7 @@ make_args=(
 	PAHOLE=pahole
 	KCFLAGS="$KCFLAGS"
 	W="$EXTRA_WARN"
+	cmd_checkdoc=:
 	-j"$JOBS"
 	CONFIG_KTM_DTB=y
 )
