@@ -4,6 +4,7 @@
  */
 
 #include <nvhe/pkvm.h>
+#include <nvhe/serial.h>
 #include <nvhe/spinlock.h>
 
 static void (*__hyp_putc)(char c);

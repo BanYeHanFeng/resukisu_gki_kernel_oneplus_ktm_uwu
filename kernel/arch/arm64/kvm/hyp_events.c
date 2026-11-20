@@ -9,6 +9,8 @@
 #include <asm/kvm_host.h>
 #include <asm/setup.h>
 
+#include "hyp_trace.h"
+
 static const char *hyp_printk_fmt_from_id(u8 fmt_id);
 
 #include <asm/kvm_define_hypevents.h>

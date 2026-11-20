@@ -48,7 +48,9 @@ static struct key_tag init_net_key_domain = { .usage = REFCOUNT_INIT(1) };
 struct net init_net;
 EXPORT_SYMBOL(init_net);
 
+#ifndef CONFIG_NET_NS
 static bool init_net_initialized;
+#endif
 /*
  * pernet_ops_rwsem: protects: pernet_list, net_generic_ids,
  * init_net_initialized and first_device pointer.
@@ -1136,7 +1138,9 @@ void __init net_ns_init(void)
 	if (setup_net(&init_net, &init_user_ns))
 		panic("Could not setup the initial network namespace");
 
+#ifndef CONFIG_NET_NS
 	init_net_initialized = true;
+#endif
 	up_write(&pernet_ops_rwsem);
 
 	if (register_pernet_subsys(&net_ns_ops))

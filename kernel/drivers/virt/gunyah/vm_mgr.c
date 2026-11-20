@@ -945,7 +945,7 @@ int __must_check gunyah_vm_get(struct gunyah_vm *ghvm)
 }
 EXPORT_SYMBOL_GPL(gunyah_vm_get);
 
-int gunyah_gup_reclaim_parcel(struct gunyah_vm *ghvm,
+static int gunyah_gup_reclaim_parcel(struct gunyah_vm *ghvm,
 			       struct gunyah_rm_mem_parcel *parcel, u64 gfn,
 			       u64 nr)
 {

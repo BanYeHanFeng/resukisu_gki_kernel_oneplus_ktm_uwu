@@ -35,7 +35,6 @@ struct hlist_head *nf_ct_helper_hash __read_mostly;
 EXPORT_SYMBOL_GPL(nf_ct_helper_hash);
 unsigned int nf_ct_helper_hsize __read_mostly;
 EXPORT_SYMBOL_GPL(nf_ct_helper_hsize);
-static unsigned int nf_ct_helper_count __read_mostly;
 
 static DEFINE_MUTEX(nf_ct_nat_helpers_mutex);
 static struct list_head nf_ct_nat_helpers __read_mostly;
@@ -391,7 +390,6 @@ int nf_conntrack_helper_register(struct nf_conntrack_helper *me)
 	}
 	refcount_set(&me->refcnt, 1);
 	hlist_add_head_rcu(&me->hnode, &nf_ct_helper_hash[h]);
-	nf_ct_helper_count++;
 out:
 	mutex_unlock(&nf_ct_helper_mutex);
 	return ret;
@@ -416,7 +414,6 @@ void nf_conntrack_helper_unregister(struct nf_conntrack_helper *me)
 {
 	mutex_lock(&nf_ct_helper_mutex);
 	hlist_del_rcu(&me->hnode);
-	nf_ct_helper_count--;
 	mutex_unlock(&nf_ct_helper_mutex);
 
 	/* Make sure every nothing is still using the helper unless its a

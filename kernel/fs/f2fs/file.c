@@ -17,6 +17,7 @@
 #include <linux/mount.h>
 #include <linux/pagevec.h>
 #include <linux/uio.h>
+#include <linux/page_size_compat.h>
 #include <linux/uuid.h>
 #include <linux/file.h>
 #include <linux/nls.h>

@@ -477,7 +477,7 @@ __read_mostly unsigned int sched_pelt_lshift;
 #include <trace/hooks/sched.h>
 static unsigned int sysctl_sched_pelt_multiplier = 1;
 
-int sched_pelt_multiplier(struct ctl_table *table, int write, void *buffer,
+static int sched_pelt_multiplier(struct ctl_table *table, int write, void *buffer,
 			  size_t *lenp, loff_t *ppos)
 {
 	static DEFINE_MUTEX(mutex);

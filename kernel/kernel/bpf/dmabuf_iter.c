@@ -151,6 +151,10 @@ struct bpf_iter_dmabuf {
 	__u64 __opaque[1];
 } __aligned(8);
 
+__bpf_kfunc int bpf_iter_dmabuf_new(struct bpf_iter_dmabuf *it);
+__bpf_kfunc struct dma_buf *bpf_iter_dmabuf_next(struct bpf_iter_dmabuf *it);
+__bpf_kfunc void bpf_iter_dmabuf_destroy(struct bpf_iter_dmabuf *it);
+
 /* Non-opaque version of bpf_iter_dmabuf */
 struct bpf_iter_dmabuf_kern {
 	struct dma_buf *dmabuf;

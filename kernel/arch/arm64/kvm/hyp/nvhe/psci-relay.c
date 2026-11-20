@@ -14,6 +14,7 @@
 #include <nvhe/arm-smccc.h>
 #include <nvhe/mem_protect.h>
 #include <nvhe/memory.h>
+#include <nvhe/modules.h>
 #include <nvhe/pkvm.h>
 #include <nvhe/trap_handler.h>
 

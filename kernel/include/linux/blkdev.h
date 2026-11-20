@@ -220,6 +220,8 @@ struct gendisk {
 	ANDROID_KABI_RESERVE(4);
 };
 
+void loop_process_cmd_list(struct list_head *cmd_list, struct gendisk *disk);
+
 static inline bool disk_live(struct gendisk *disk)
 {
 	return !inode_unhashed(disk->part0->bd_inode);

@@ -312,7 +312,6 @@ void securityfs_remove(struct dentry *dentry)
 EXPORT_SYMBOL_GPL(securityfs_remove);
 
 #ifdef CONFIG_SECURITY
-static struct dentry *lsm_dentry;
 static ssize_t lsm_read(struct file *filp, char __user *buf, size_t count,
 			loff_t *ppos)
 {
@@ -340,8 +339,7 @@ static int __init securityfs_init(void)
 		return retval;
 	}
 #ifdef CONFIG_SECURITY
-	lsm_dentry = securityfs_create_file("lsm", 0444, NULL, NULL,
-						&lsm_ops);
+	securityfs_create_file("lsm", 0444, NULL, NULL, &lsm_ops);
 #endif
 	return 0;
 }

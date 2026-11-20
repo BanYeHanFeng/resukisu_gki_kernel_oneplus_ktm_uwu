@@ -283,7 +283,6 @@ int __init rd_load_disk(int n)
 	return rd_load_image("/dev/root");
 }
 
-static int exit_code;
 static int decompress_error;
 
 static long __init compr_fill(void *buf, unsigned long len)
@@ -313,7 +312,6 @@ static long __init compr_flush(void *window, unsigned long outcnt)
 static void __init error(char *x)
 {
 	printk(KERN_ERR "%s\n", x);
-	exit_code = 1;
 	decompress_error = 1;
 }
 

@@ -184,8 +184,6 @@ static void migrate_tasks(struct rq *dead_rq, struct rq_flags *rf)
 	rq->stop = stop;
 }
 
-void __balance_callbacks(struct rq *rq);
-
 static int drain_rq_cpu_stop(void *data)
 {
 	struct rq *rq = this_rq();

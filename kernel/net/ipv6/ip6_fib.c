@@ -1790,7 +1790,7 @@ static struct fib6_node *fib6_repair_tree(struct net *net,
 	int nstate;
 	struct fib6_node *child;
 	struct fib6_walker *w;
-	int iter = 0;
+	int iter __maybe_unused = 0;
 
 	/* Set fn->leaf to null_entry for root node. */
 	if (fn->fn_flags & RTN_TL_ROOT) {

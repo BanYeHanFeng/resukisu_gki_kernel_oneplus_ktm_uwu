@@ -8,6 +8,17 @@
 #include <linux/io-pgtable.h>
 #include <nvhe/spinlock.h>
 
+struct hyp_pool;
+
+void __kvm_iommu_reclaim_pages(struct hyp_pool *pool, void *p, u8 order);
+bool kvm_iommu_donate_from_cma(phys_addr_t phys, unsigned long order);
+struct hyp_pool *__get_empty_block_pool(phys_addr_t phys);
+void __repudiate_host_page(void *addr, unsigned long order,
+			   struct kvm_hyp_memcache *host_mc);
+int kvm_iommu_refill(struct kvm_hyp_memcache *host_mc);
+void kvm_iommu_reclaim(struct kvm_hyp_memcache *host_mc, int target);
+int kvm_iommu_reclaimable(void);
+
 #if IS_ENABLED(CONFIG_ARM_SMMU_V3_PKVM)
 #include <linux/io-pgtable-arm.h>
 
