@@ -163,15 +163,6 @@ collect_dist() {
 	find "$OUT_DIR/arch/arm64/boot/dts/vendor" -name '*.dtb' -type f -exec cp -f {} "$DIST_DIR/dtbs/" \;
 	find "$OUT_DIR/arch/arm64/boot/dts/vendor" -name '*.dtbo' -type f -exec cp -f {} "$DIST_DIR/dtbs/" \;
 
-	{
-		echo "kernel_release: $(cat "$OUT_DIR/include/config/kernel.release")"
-		echo "source_commit: $(git -C "$REPO_ROOT" rev-parse HEAD 2>/dev/null || echo unknown)"
-		echo "source_branch: $(git -C "$REPO_ROOT" rev-parse --abbrev-ref HEAD 2>/dev/null || echo unknown)"
-		echo "clang: $(clang --version | head -1)"
-		echo "build_date: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
-		echo "modules: none（只换内核，不编译模块）"
-	} >"$DIST_DIR/kernel-info.txt"
-
 	log "Image：$(du -h "$DIST_DIR/Image" | cut -f1)"
 	log "设备树：$(find "$DIST_DIR/dtbs" -type f | wc -l) 个文件，共 $(du -sh "$DIST_DIR/dtbs" | cut -f1)"
 }

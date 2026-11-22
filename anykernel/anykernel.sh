@@ -125,7 +125,6 @@ ui_print " ";
 ui_print "*******************************";
 ui_print " uwuAOSP Kernel · OnePlus Ace6 (KTM)";
 ui_print "*******************************";
-ui_print "- 只换内核：vendor_dlkm / vendor_boot 里的模块保持原样";
 
 ui_print " ";
 ui_print "- 刷写 boot 内核";

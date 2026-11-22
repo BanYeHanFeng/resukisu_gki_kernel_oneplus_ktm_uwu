@@ -4,11 +4,11 @@ on:
   workflow_dispatch:
     inputs:
       flash_dtbo:
-        description: "刷机包内带上 dtbo.img（安装时会刷写 dtbo 分区）"
+        description: "生成 dtbo.img"
         type: boolean
         default: false
       localversion:
-        description: "可选：覆盖内核 localversion，用于对齐设备上 uname -r（例如 -4k-g1a2b3c4）"
+        description: "覆盖 localversion，例如 -4k-g1a2b3c4"
         type: string
         default: ""
 
@@ -120,10 +120,7 @@ jobs:
           scripts/pack_ak3.sh "${args[@]}"
 
       - name: 列出产物
-        run: |
-          ls -lh dist/
-          echo "内核版本：$(grep kernel_release dist/kernel-info.txt)"
-          echo "提交：$(grep source_commit dist/kernel-info.txt)"
+        run: ls -lh dist/
 
       - name: 上传构建产物
         uses: actions/upload-artifact@v7
@@ -132,16 +129,3 @@ jobs:
           path: dist/*.zip
           if-no-files-found: error
           compression-level: 0
-
-      - name: 写入构建摘要
-        if: always()
-        run: |
-          {
-            echo "## uwuAOSP Kernel · OnePlus Ace6 (KTM)"
-            echo
-            echo "- 提交：\`${GITHUB_SHA:0:12}\`"
-            echo "- 触发人：@${{ github.actor }}"
-            echo "- 只换内核：包里不带 .ko，安装时只刷 boot（可选 dtbo）"
-            [ -f dist/kernel-info.txt ] && sed 's/^/- /' dist/kernel-info.txt
-            [ -f dist/*.zip ] && ls -lh dist/*.zip | sed 's/^/- /'
-          } >> "$GITHUB_STEP_SUMMARY"

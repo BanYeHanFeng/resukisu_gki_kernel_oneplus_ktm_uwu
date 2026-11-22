@@ -79,16 +79,14 @@ main() {
 
 	if [[ "$WITH_DTBO" == "1" ]]; then
 		[[ -f "$DIST_DIR/dtbo.img" ]] || die "--with-dtbo 但 $DIST_DIR/dtbo.img 不存在"
-		log "放入 dtbo.img（安装时会刷写 dtbo 分区）"
+		log "放入 dtbo.img"
 		cp -f "$DIST_DIR/dtbo.img" "$stage/dtbo.img"
 	fi
-
-	[[ -f "$DIST_DIR/kernel-info.txt" ]] && cp -f "$DIST_DIR/kernel-info.txt" "$stage/kernel-info.txt"
 
 	log "打包：${OUT_ZIP#$REPO_ROOT/}"
 	mkdir -p "$(dirname "$OUT_ZIP")"
 	(cd "$stage" && zip -rq9 "$OUT_ZIP" . -x '.*')
-	log "完成：$(du -h "$OUT_ZIP" | cut -f1)，只含内核$([[ "$WITH_DTBO" == "1" ]] && echo ' 与 dtbo.img')"
+	log "完成：$(du -h "$OUT_ZIP" | cut -f1)"
 }
 
 main "$@"
