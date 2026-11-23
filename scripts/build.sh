@@ -53,7 +53,7 @@ prepare_tree() {
 
 CC_VAR=clang
 if [[ "$USE_CCACHE" == "1" ]]; then
-	command -v ccache >/dev/null 2>&1 || die "USE_CCACHE=1 但未安装 ccache"
+	command -v ccache >/dev/null 2>&1 || die "USE_CCACHE=1 但 PATH 里没有 ccache（先用 scripts/fetch-ccache.sh 准备）"
 	CC_VAR="ccache clang"
 	log "ccache: $(ccache --version | head -1)"
 fi

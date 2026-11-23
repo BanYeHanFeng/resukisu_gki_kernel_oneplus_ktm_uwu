@@ -17,6 +17,7 @@ permissions:
 
 env:
   LLVM_VERSION: "23.1.6"
+  CCACHE_VERSION: "4.14.3"
   CCACHE_DIR: ${{ github.workspace }}/.ccache
 
 jobs:
@@ -37,7 +38,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
             bc bison flex libssl-dev libelf-dev cpio rsync lz4 zstd \
-            python3 zip unzip ccache dwarves git curl
+            python3 zip unzip dwarves git curl
 
       - name: 配置 zram swap
         run: |
@@ -60,26 +61,27 @@ jobs:
           path: ~/toolchains/llvm-${{ env.LLVM_VERSION }}-aarch64
           key: llvm-${{ env.LLVM_VERSION }}-aarch64
 
-      - name: 准备 LLVM 工具链
+      - name: 准备工具链
         run: |
-          bin_dir=$(scripts/fetch-toolchain.sh ~/toolchains | tail -1)
-          echo "CLANG_BIN_DIR=$bin_dir" >> "$GITHUB_ENV"
+          echo "CLANG_BIN_DIR=$(scripts/fetch-toolchain.sh ~/toolchains | tail -1)" >> "$GITHUB_ENV"
+          scripts/fetch-ccache.sh ~/toolchains | tail -1 >> "$GITHUB_PATH"
 
       - name: 恢复 ccache
         uses: actions/cache@v6
         with:
           path: ${{ env.CCACHE_DIR }}
-          key: ccache-${{ runner.os }}-${{ runner.arch }}-llvm${{ env.LLVM_VERSION }}-${{ github.run_id }}
+          key: ccache-${{ env.CCACHE_VERSION }}-${{ runner.os }}-${{ runner.arch }}-llvm${{ env.LLVM_VERSION }}-${{ github.run_id }}
           restore-keys: |
-            ccache-${{ runner.os }}-${{ runner.arch }}-llvm${{ env.LLVM_VERSION }}-
+            ccache-${{ env.CCACHE_VERSION }}-${{ runner.os }}-${{ runner.arch }}-llvm${{ env.LLVM_VERSION }}-
 
       - name: 构建内核
         env:
           USE_CCACHE: 1
           KERNEL_LOCALVERSION: ${{ inputs.localversion }}
+          CCACHE_COMPILERCHECK: string:llvm-${{ env.LLVM_VERSION }}
+          CCACHE_MAXSIZE: 6G
         run: |
           chmod +x scripts/*.sh
-          ccache --max-size=6G
           ccache --zero-stats
           scripts/build.sh
 
